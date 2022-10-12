@@ -1,0 +1,37 @@
+---
+- name: Create user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: present
+- name: Create user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: present
+- name: Create directory for the installation
+  become: yes
+  file:
+    path: /tmp/splunk
+    state: directory
+    owner: splunk
+    group: splunk
+    mode: 0744
+- name: Copy installation files to remote host
+  become: yes
+  copy:
+    src: "{{ src_path }}/{{ src_file }}"
+    dest: /tmp/splunk/
+    owner: splunk
+    group: splunk
+    mode: 0744
+
+- name: Unarchive the installation files to the default splunk directory
+  become: yes
+  unarchive:
+    src: "/tmp/splunk/{{ src_file }}"
+    remote_src: yes
+    dest: /opt
+    owner: splunk
+    group: splunk
+    mode: 0744

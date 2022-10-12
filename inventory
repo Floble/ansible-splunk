@@ -1,0 +1,5 @@
+[Splunk]
+splunk1 ansible_host=3.73.52.37 ansible_user=ec2-user
+
+[all:vars]
+ansible_ssh_private_key_file=~/.ssh/id_rsa_public
