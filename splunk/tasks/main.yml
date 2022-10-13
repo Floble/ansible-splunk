@@ -1,0 +1,27 @@
+---
+- name: Unarchive the installation files to the default splunk directory
+  become: yes
+  unarchive:
+    src: "/tmp/splunk/{{ src_file }}"
+    remote_src: yes
+    dest: /opt
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy password file to remote host
+  become: yes
+  template:
+    src: user-seed.conf.j2
+    dest: /opt/splunk/etc/system/local/user-seed.conf
+    owner: splunk
+    group: splunk
+    mode: 0644
+  when: lifecycle == "install"
+
+- name: Start the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk start --accept-license"
+  when: lifecycle == "install"
