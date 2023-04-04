@@ -1,0 +1,8 @@
+---
+admin_user_name:
+admin_password:
+pass4Symmkey: mycluster
+splunkd_port: 8089
+listening_port: 9997
+replication_port: 9100
+manager_ip:

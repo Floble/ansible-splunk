@@ -1,0 +1,7 @@
+---
+- hosts: Splunk
+  vars:
+    - lifecycle: remove
+  roles:
+    - splunk_base
+    - preparation_splunk

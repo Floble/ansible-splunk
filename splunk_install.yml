@@ -1,0 +1,25 @@
+---
+- hosts: Splunk
+  vars:
+    - lifecycle: install
+  roles:
+    - preparation_splunk
+    - splunk_base
+
+- hosts: Manager
+  vars:
+    - lifecycle: install
+  roles:
+    - manager
+
+- hosts: Indexer
+  vars:
+    - lifecycle: install
+  roles:
+    - peer
+
+- hosts: SearchHead
+  vars:
+    - lifecycle: install
+  roles:
+    - searchhead

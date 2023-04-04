@@ -17,7 +17,17 @@
     dest: /opt/splunk/etc/system/local/user-seed.conf
     owner: splunk
     group: splunk
-    mode: 0644
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Make the splunk user the owner of the splunk installation directory
+  become: yes
+  file:
+    path: /opt/splunk
+    owner: splunk
+    group: splunk
+    mode: 0744
+    recurse: yes
   when: lifecycle == "install"
 
 - name: Start the splunk service
@@ -25,3 +35,17 @@
   become_user: splunk
   shell: "/opt/splunk/bin/splunk start --accept-license"
   when: lifecycle == "install"
+
+- name: Stop the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk stop"
+  when: lifecycle == "remove"
+
+- name: Remove the default splunk directory
+  become: yes
+  become_user: splunk
+  file:
+    path: /opt/splunk/
+    state: absent
+  when: lifecycle == "remove"

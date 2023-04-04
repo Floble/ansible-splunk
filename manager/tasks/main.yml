@@ -1,0 +1,17 @@
+---
+- name: Login as admin
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
+
+- name: Set node to manager mode
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -replication_factor {{ replication_factor }} -search_factor {{ search_factor }} -secret {{ pass4Symmkey }}"
+  when: lifecycle == "install"
+
+- name: Restart the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk restart"
+  when: lifecycle == "install"

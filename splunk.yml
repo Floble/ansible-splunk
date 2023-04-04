@@ -1,7 +1,0 @@
----
-- hosts: splunk1
-  vars:
-    - lifecycle: install
-  roles:
-    - preparation_splunk
-    - splunk

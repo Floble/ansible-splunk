@@ -1,0 +1,29 @@
+---
+- name: Login as admin
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
+
+- name: Configure peer to be a license client to the manager node
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit licenser-localpeer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }}"
+  ignore_errors: true
+
+- name: Enable listening port
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk enable listen {{ listening_port }}"
+  when: lifecycle == "install"
+
+- name: Make node to peer
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode peer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -secret {{ pass4Symmkey }} -replication_port {{ replication_port }}"
+  when: lifecycle == "install"
+
+- name: Restart the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk restart"
+  when: lifecycle == "install"

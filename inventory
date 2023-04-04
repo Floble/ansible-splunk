@@ -1,5 +1,23 @@
 [Splunk]
-splunk1 ansible_host=52.59.249.4 ansible_user=ec2-user
+manager1 ansible_host= ansible_user=
+peer1 ansible_host= ansible_user=
+peer2 ansible_host= ansible_user=
+peer3 ansible_host= ansible_user=
+searchhead1 ansible_host= ansible_user=
+
+[Manager]
+manager1 ansible_host= ansible_user=
+
+[Indexer]
+peer1 ansible_host= ansible_user=
+peer2 ansible_host= ansible_user=
+peer3 ansible_host= ansible_user=
+
+[SearchHead]
+searchhead1 ansible_host= ansible_user=
 
 [all:vars]
-ansible_ssh_private_key_file=~/.ssh/id_rsa_public
+ansible_ssh_private_key_file=
+ansible_python_interpreter=/usr/bin/python3
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
