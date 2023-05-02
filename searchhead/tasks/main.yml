@@ -10,10 +10,28 @@
   shell: "/opt/splunk/bin/splunk edit licenser-localpeer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }}"
   ignore_errors: true
 
-- name: Make node to searchhead
+#- name: Make node to searchhead
+#  become: yes
+#  become_user: splunk
+#  shell: "/opt/splunk/bin/splunk edit cluster-config -mode searchhead -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -secret {{ pass4Symmkey }}"
+#  when: lifecycle == "install"
+
+- name: Make node to searchhead and make it multisite aware
   become: yes
   become_user: splunk
-  shell: "/opt/splunk/bin/splunk edit cluster-config -mode searchhead -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -secret {{ pass4Symmkey }}"
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode searchhead -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -site {{ site }} -secret {{ pass4Symmkey }}"
+  when: lifecycle == "install"
+
+- name: Make searchhead member of searchhead cluster
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk init shcluster-config -mgmt_uri https://{{ self_ip }}:{{ splunkd_port }} -replication_port {{ replication_port }} -secret {{ pass4Symmkey }}"
+  when: lifecycle == "install"
+
+- name: Add the Deployer to the searchhead
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit shcluster-config -conf_deploy_fetch_url https://{{ deployer_ip }}:{{ splunkd_port }}"
   when: lifecycle == "install"
 
 - name: Restart the splunk service

@@ -1,6 +1,10 @@
 ---
 admin_user_name:
 admin_password:
-pass4Symmkey: mycluster
-splunkd_port: 8089
+pass4Symmkey:
+splunkd_port:
+self_ip: 
 manager_ip:
+deployer_ip:
+site:
+replication_port:

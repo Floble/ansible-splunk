@@ -16,10 +16,16 @@
   shell: "/opt/splunk/bin/splunk enable listen {{ listening_port }}"
   when: lifecycle == "install"
 
-- name: Make node to peer
+#- name: Make node to peer
+#  become: yes
+#  become_user: splunk
+#  shell: "/opt/splunk/bin/splunk edit cluster-config -mode peer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -secret {{ pass4Symmkey }} -replication_port {{ replication_port }}"
+#  when: lifecycle == "install"
+
+- name: Make node to peer and make it multisite aware
   become: yes
   become_user: splunk
-  shell: "/opt/splunk/bin/splunk edit cluster-config -mode peer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -secret {{ pass4Symmkey }} -replication_port {{ replication_port }}"
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode peer -manager_uri https://{{ manager_ip }}:{{ splunkd_port }} -site {{ site }} -secret {{ pass4Symmkey }} -replication_port {{ replication_port }}"
   when: lifecycle == "install"
 
 - name: Restart the splunk service

@@ -1,0 +1,10 @@
+[indexAndForward]
+index = false
+
+[tcpout]
+defaultGroup = default-autolb-group
+forwardedindex.filter.disable = true
+indexAndForward = false
+
+[tcpout:default-autolb-group]
+server={{ peer1_ip }}:{{ listening_port }},{{ peer2_ip }}:{{ listening_port }},{{ peer3_ip }}:{{ listening_port }}

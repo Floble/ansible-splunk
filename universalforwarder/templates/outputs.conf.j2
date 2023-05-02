@@ -1,0 +1,11 @@
+[tcpout]
+defaultGroup = default-autolb-group
+
+[tcpout:default-autolb-group]
+indexerDiscovery = idxc1
+useACK = true
+autoLBVolume = 262144
+
+[indexer_discovery:idxc1]
+manager_uri = https://{{ manager_ip }}:{{ splunkd_port }}
+pass4SymmKey = {{ pass4Symmkey }}

@@ -1,0 +1,23 @@
+---
+- name: Login as admin
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
+  when: lifecycle == "install"
+
+- name: Insert searchhead clustering to server.conf file
+  become: yes
+  become_user: splunk
+  blockinfile:
+    path: /opt/splunk/etc/system/local/server.conf
+    block: |
+      [shclustering]
+      pass4SymmKey = {{ pass4Symmkey }}
+    marker: ""
+  when: lifecycle == "install"
+
+- name: Restart the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk restart"
+  when: lifecycle == "install"

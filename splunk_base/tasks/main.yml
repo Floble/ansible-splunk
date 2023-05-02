@@ -46,6 +46,6 @@
   become: yes
   become_user: splunk
   file:
-    path: /opt/splunk/
+    path: /opt/splunk
     state: absent
   when: lifecycle == "remove"

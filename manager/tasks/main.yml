@@ -3,11 +3,36 @@
   become: yes
   become_user: splunk
   shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
+  when: lifecycle == "install"
 
-- name: Set node to manager mode
+#- name: Set node to manager mode
+#  become: yes
+#  become_user: splunk
+#  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -replication_factor {{ replication_factor }} -search_factor {{ search_factor }} -secret {{ pass4Symmkey }}"
+#  when: lifecycle == "install"
+
+- name: Set node to manager mode and make it multisite aware
   become: yes
   become_user: splunk
-  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -replication_factor {{ replication_factor }} -search_factor {{ search_factor }} -secret {{ pass4Symmkey }}"
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -multisite true -site {{ site }} -available_sites site1,site2 -site_replication_factor {{ site_replication_factor }} -site_search_factor {{ site_search_factor }} -secret {{ pass4Symmkey }}"
+  when: lifecycle == "install"
+
+- name: Insert indexer discovery to server.conf file
+  become: yes
+  become_user: splunk
+  blockinfile:
+    path: /opt/splunk/etc/system/local/server.conf
+    block: |
+      [indexer_discovery]
+      pass4SymmKey = {{ pass4Symmkey }}
+      indexerWeightByDiskCapacity = true
+    marker: ""
+  when: lifecycle == "install"
+
+- name: Configure the forwarder site failover
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit cluster-config -forwarder_site_failover site1:site2 -site {{ site }}"
   when: lifecycle == "install"
 
 - name: Restart the splunk service

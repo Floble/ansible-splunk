@@ -1,6 +1,9 @@
 ---
 admin_user_name:
 admin_password:
-pass4Symmkey: mycluster
-replication_factor: 2
-search_factor: 2
+pass4Symmkey:
+site:
+replication_factor:
+search_factor:
+site_replication_factor:
+site_search_factor:

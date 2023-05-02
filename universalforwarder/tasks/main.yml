@@ -1,0 +1,97 @@
+---
+- name: Create the splunkforwarder installation directory
+  become: yes
+  file:
+    path: /opt/splunkforwarder
+    owner: splunk
+    group: splunk
+    mode: 0744
+    state: directory
+  when: lifecycle == "install"
+
+- name: Unarchive the installation files to the default splunkforwarder directory
+  become: yes
+  unarchive:
+    src: "/tmp/splunk/{{ src_file }}"
+    remote_src: yes
+    dest: /opt/
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy password file to remote host
+  become: yes
+  template:
+    src: user-seed.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy the Forwarder configuration to the system directory
+  become: yes
+  template:
+    src: outputs.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+    owner: splunk
+    group: splunk
+  when: lifecycle == "install"
+
+- name: Copy exemplary csv file to remote host
+  become: yes
+  copy:
+    src: ~/Desktop/shares.csv
+    dest: /tmp/
+    owner: splunk
+    group: splunk
+  when: lifecycle == "install"
+
+- name: Copy the DeploymentClient configuration to the system directory
+  become: yes
+  template:
+    src: deploymentclient.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+    owner: splunk
+    group: splunk
+  when: lifecycle == "install"
+
+- name: Copy the Server configuration to the system directory
+  become: yes
+  template:
+    src: server.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/server.conf
+    owner: splunk
+    group: splunk
+  when: lifecycle == "install"
+
+#- name: Make the splunk user the owner of the splunkforwarder installation directory
+#  become: yes
+#  file:
+#    path: /opt/splunkforwarder
+#    owner: splunk
+#    group: splunk
+#    mode: 0744
+#    recurse: yes
+#  when: lifecycle == "install"
+
+- name: Start the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunkforwarder/bin/splunk start --accept-license"
+  when: lifecycle == "install"
+
+- name: Stop the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunkforwarder/bin/splunk stop"
+  when: lifecycle == "remove"
+
+- name: Remove the default splunk directory
+  become: yes
+  become_user: splunk
+  file:
+    path: /opt/splunkforwarder
+    state: absent
+  when: lifecycle == "remove"

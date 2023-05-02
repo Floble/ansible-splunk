@@ -3,21 +3,37 @@ manager1 ansible_host= ansible_user=
 peer1 ansible_host= ansible_user=
 peer2 ansible_host= ansible_user=
 peer3 ansible_host= ansible_user=
+peer4 ansible_host= ansible_user=
 searchhead1 ansible_host= ansible_user=
+searchhead2 ansible_host= ansible_user=
+searchhead3 ansible_host= ansible_user=
+deployer1 ansible_host= ansible_user=
 
 [Manager]
 manager1 ansible_host= ansible_user=
+
+[DeploymentServer]
+deploymentserver1 ansible_host= ansible_user=
+
+[Deployer]
+deployer1 ansible_host= ansible_user=
 
 [Indexer]
 peer1 ansible_host= ansible_user=
 peer2 ansible_host= ansible_user=
 peer3 ansible_host= ansible_user=
+peer4 ansible_host= ansible_user=
 
 [SearchHead]
 searchhead1 ansible_host= ansible_user=
+searchhead2 ansible_host= ansible_user=
+searchhead3 ansible_host= ansible_user=
+
+[UniversalForwarder]
+uforwarder1 ansible_host= ansible_user=
 
 [all:vars]
 ansible_ssh_private_key_file=
-ansible_python_interpreter=/usr/bin/python3
+ansible_python_interpreter=
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ansible_ssh_extra_args='-o StrictHostKeyChecking=no'

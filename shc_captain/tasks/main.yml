@@ -1,0 +1,39 @@
+---
+- name: Login as admin
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
+
+- name: Bootstrap the searchhead to be the initial captain
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list https://{{ self_ip }}:{{ splunkd_port }}"
+  when: lifecycle == "install"
+
+- name: Add member to the searchhead cluster
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk add shcluster-member -new_member_uri https://{{ sh2_ip }}:{{ splunkd_port }}"
+  when: lifecycle == "install"
+
+- name: Add member to the searchhead cluster
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk add shcluster-member -new_member_uri https://{{ sh3_ip }}:{{ splunkd_port }}"
+  when: lifecycle == "install"
+
+- name: Group the searchhead cluster members by label
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk edit shcluster-config -shcluster_label shc-floble"
+  when: lifecycle == "install"
+
+- name: Pause for 5 minutes
+  pause:
+    minutes: 5
+
+- name: Restart the searchhead cluster
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk rolling-restart shcluster-members"
+  when: lifecycle == "install"
