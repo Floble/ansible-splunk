@@ -1,39 +1,29 @@
-[Splunk]
-manager1 ansible_host= ansible_user=
-peer1 ansible_host= ansible_user=
-peer2 ansible_host= ansible_user=
-peer3 ansible_host= ansible_user=
-peer4 ansible_host= ansible_user=
-searchhead1 ansible_host= ansible_user=
-searchhead2 ansible_host= ansible_user=
-searchhead3 ansible_host= ansible_user=
-deployer1 ansible_host= ansible_user=
-
 [Manager]
-manager1 ansible_host= ansible_user=
+manager1 ansible_host=18.185.106.75 ansible_user=ec2-user
 
 [DeploymentServer]
-deploymentserver1 ansible_host= ansible_user=
+deploymentserver1 ansible_host=3.127.210.14 ansible_user=ec2-user
 
 [Deployer]
-deployer1 ansible_host= ansible_user=
+deployer1 ansible_host=3.66.169.177 ansible_user=ec2-user
 
 [Indexer]
-peer1 ansible_host= ansible_user=
-peer2 ansible_host= ansible_user=
-peer3 ansible_host= ansible_user=
-peer4 ansible_host= ansible_user=
+peer1 ansible_host=52.59.234.222 ansible_user=ec2-user
+peer2 ansible_host=3.64.228.88 ansible_user=ec2-user
+peer3 ansible_host=3.64.193.104 ansible_user=ec2-user
 
 [SearchHead]
-searchhead1 ansible_host= ansible_user=
-searchhead2 ansible_host= ansible_user=
-searchhead3 ansible_host= ansible_user=
+searchhead1 ansible_host=3.64.255.125 ansible_user=ec2-user
+searchhead2 ansible_host=3.70.239.78 ansible_user=ec2-user
+
+[SearchHeadCaptain]
+captain1 ansible_host=3.122.233.105 ansible_user=ec2-user
 
 [UniversalForwarder]
-uforwarder1 ansible_host= ansible_user=
+uforwarder1 ansible_host=3.70.228.252 ansible_user=ec2-user
 
 [all:vars]
-ansible_ssh_private_key_file=
-ansible_python_interpreter=
+ansible_ssh_private_key_file="~/.ssh/id_rsa_floble"
+ansible_python_interpreter="/usr/bin/python3"
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ansible_ssh_extra_args='-o StrictHostKeyChecking=no'

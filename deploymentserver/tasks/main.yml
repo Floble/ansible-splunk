@@ -1,4 +1,38 @@
 ---
+- name: Create user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create directory for the installation
+  become: yes
+  file:
+    path: /tmp/splunk
+    state: directory
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy installation files to remote host
+  become: yes
+  copy:
+    src: "{{ src_path }}/{{ src_file }}"
+    dest: /tmp/splunk/
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
 - name: Unarchive the installation files to the default splunk directory
   become: yes
   unarchive:
@@ -47,5 +81,26 @@
   become_user: splunk
   file:
     path: /opt/splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove installation files from remote host
+  become: yes
+  file:
+    path: /tmp/splunk/
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user group for the splunk service
+  become: yes
+  group:
+    name: splunk
     state: absent
   when: lifecycle == "remove"

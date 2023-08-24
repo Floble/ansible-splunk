@@ -1,21 +1,92 @@
 ---
+- name: Create user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create directory for the installation
+  become: yes
+  file:
+    path: /tmp/splunk
+    state: directory
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy installation files to remote host
+  become: yes
+  copy:
+    src: "{{ src_path }}/{{ src_file }}"
+    dest: /tmp/splunk/
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Unarchive the installation files to the default splunk directory
+  become: yes
+  unarchive:
+    src: "/tmp/splunk/{{ src_file }}"
+    remote_src: yes
+    dest: /opt
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy password file to remote host
+  become: yes
+  template:
+    src: user-seed.conf.j2
+    dest: /opt/splunk/etc/system/local/user-seed.conf
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Make the splunk user the owner of the splunk installation directory
+  become: yes
+  file:
+    path: /opt/splunk
+    owner: splunk
+    group: splunk
+    mode: 0744
+    recurse: yes
+  when: lifecycle == "install"
+
+- name: Start the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk start --accept-license"
+  when: lifecycle == "install"
+
 - name: Login as admin
   become: yes
   become_user: splunk
   shell: "/opt/splunk/bin/splunk search 'index=_internal | fields _time | head 1 ' -auth '{{ admin_user_name }}:{{ admin_password }}'"
   when: lifecycle == "install"
 
-#- name: Set node to manager mode
-#  become: yes
-#  become_user: splunk
-#  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -replication_factor {{ replication_factor }} -search_factor {{ search_factor }} -secret {{ pass4Symmkey }}"
-#  when: lifecycle == "install"
-
-- name: Set node to manager mode and make it multisite aware
+- name: Set node to manager mode
   become: yes
   become_user: splunk
-  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -multisite true -site {{ site }} -available_sites site1,site2 -site_replication_factor {{ site_replication_factor }} -site_search_factor {{ site_search_factor }} -secret {{ pass4Symmkey }}"
+  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -replication_factor {{ replication_factor }} -search_factor {{ search_factor }} -secret {{ pass4Symmkey }}"
   when: lifecycle == "install"
+
+#- name: Set node to manager mode and make it multisite aware
+#  become: yes
+#  become_user: splunk
+#  shell: "/opt/splunk/bin/splunk edit cluster-config -mode manager -multisite true -site {{ site }} -available_sites site1,site2 -site_replication_factor {{ site_replication_factor }} -site_search_factor {{ site_search_factor }} -secret {{ pass4Symmkey }}"
+#  when: lifecycle == "install"
 
 - name: Insert indexer discovery to server.conf file
   become: yes
@@ -29,14 +100,49 @@
     marker: ""
   when: lifecycle == "install"
 
-- name: Configure the forwarder site failover
-  become: yes
-  become_user: splunk
-  shell: "/opt/splunk/bin/splunk edit cluster-config -forwarder_site_failover site1:site2 -site {{ site }}"
-  when: lifecycle == "install"
+#- name: Configure the forwarder site failover
+#  become: yes
+#  become_user: splunk
+#  shell: "/opt/splunk/bin/splunk edit cluster-config -forwarder_site_failover site1:site2 -site {{ site }}"
+#  when: lifecycle == "install"
 
 - name: Restart the splunk service
   become: yes
   become_user: splunk
   shell: "/opt/splunk/bin/splunk restart"
   when: lifecycle == "install"
+
+- name: Stop the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk stop"
+  when: lifecycle == "remove"
+
+- name: Remove the default splunk directory
+  become: yes
+  become_user: splunk
+  file:
+    path: /opt/splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove installation files from remote host
+  become: yes
+  file:
+    path: /tmp/splunk/
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"

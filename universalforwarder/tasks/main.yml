@@ -1,4 +1,38 @@
 ---
+- name: Create user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create directory for the installation
+  become: yes
+  file:
+    path: /tmp/splunk
+    state: directory
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy installation files to remote host
+  become: yes
+  copy:
+    src: "{{ src_path }}/{{ src_file }}"
+    dest: /tmp/splunk/
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
 - name: Create the splunkforwarder installation directory
   become: yes
   file:
@@ -57,14 +91,14 @@
     group: splunk
   when: lifecycle == "install"
 
-- name: Copy the Server configuration to the system directory
-  become: yes
-  template:
-    src: server.conf.j2
-    dest: /opt/splunkforwarder/etc/system/local/server.conf
-    owner: splunk
-    group: splunk
-  when: lifecycle == "install"
+#- name: Copy the Server configuration to the system directory
+#  become: yes
+#  template:
+#    src: server.conf.j2
+#    dest: /opt/splunkforwarder/etc/system/local/server.conf
+#    owner: splunk
+#    group: splunk
+#  when: lifecycle == "install"
 
 #- name: Make the splunk user the owner of the splunkforwarder installation directory
 #  become: yes
@@ -93,5 +127,26 @@
   become_user: splunk
   file:
     path: /opt/splunkforwarder
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove installation files from remote host
+  become: yes
+  file:
+    path: /tmp/splunk/
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user group for the splunk service
+  become: yes
+  group:
+    name: splunk
     state: absent
   when: lifecycle == "remove"

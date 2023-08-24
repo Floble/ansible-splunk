@@ -1,7 +1,12 @@
 ---
-admin_user_name:
-admin_password:
-splunkd_port:
-self_ip:
-sh2_ip:
-sh3_ip:
+src_file: splunk-9.0.1-82c987350fde-Linux-x86_64.tgz
+src_path: ~/Downloads
+admin_user_name: admin
+admin_password: splunk123*
+pass4Symmkey: mycluster
+splunkd_port: 8089
+manager_ip: 172.31.40.223
+deployer_ip: 172.31.33.88
+replication_port: 9100
+sh2_ip: 172.31.45.167
+sh3_ip: 172.31.46.148

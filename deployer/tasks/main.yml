@@ -1,4 +1,75 @@
 ---
+- name: Create user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: present
+  when: lifecycle == "install"
+
+- name: Create directory for the installation
+  become: yes
+  file:
+    path: /tmp/splunk
+    state: directory
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy installation files to remote host
+  become: yes
+  copy:
+    src: "{{ src_path }}/{{ src_file }}"
+    dest: /tmp/splunk/
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Unarchive the installation files to the default splunk directory
+  become: yes
+  unarchive:
+    src: "/tmp/splunk/{{ src_file }}"
+    remote_src: yes
+    dest: /opt
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Copy password file to remote host
+  become: yes
+  template:
+    src: user-seed.conf.j2
+    dest: /opt/splunk/etc/system/local/user-seed.conf
+    owner: splunk
+    group: splunk
+    mode: 0744
+  when: lifecycle == "install"
+
+- name: Make the splunk user the owner of the splunk installation directory
+  become: yes
+  file:
+    path: /opt/splunk
+    owner: splunk
+    group: splunk
+    mode: 0744
+    recurse: yes
+  when: lifecycle == "install"
+
+- name: Start the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk start --accept-license"
+  when: lifecycle == "install"
+
 - name: Login as admin
   become: yes
   become_user: splunk
@@ -21,3 +92,38 @@
   become_user: splunk
   shell: "/opt/splunk/bin/splunk restart"
   when: lifecycle == "install"
+
+- name: Stop the splunk service
+  become: yes
+  become_user: splunk
+  shell: "/opt/splunk/bin/splunk stop"
+  when: lifecycle == "remove"
+
+- name: Remove the default splunk directory
+  become: yes
+  become_user: splunk
+  file:
+    path: /opt/splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove installation files from remote host
+  become: yes
+  file:
+    path: /tmp/splunk/
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user for the splunk service
+  become: yes
+  user:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"
+
+- name: Remove user group for the splunk service
+  become: yes
+  group:
+    name: splunk
+    state: absent
+  when: lifecycle == "remove"
