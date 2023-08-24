@@ -1,6 +1,42 @@
 ---
+- hosts: Manager
+  vars:
+    - lifecycle: install
+  roles:
+    - manager
+
+- hosts: DeploymentServer
+  vars:
+    - lifecycle: install
+  roles:
+    - deploymentserver
+
+- hosts: Deployer
+  vars:
+    - lifecycle: install
+  roles:
+    - deployer
+
+- hosts: Indexer
+  vars:
+    - lifecycle: install
+  roles:
+    - peer
+
+- hosts: SearchHead
+  vars:
+    - lifecycle: install
+  roles:
+    - searchhead
+
 - hosts: SearchHeadCaptain
   vars:
     - lifecycle: install
   roles:
-    - shc_captain
+    - shccaptain
+
+- hosts: UniversalForwarder
+  vars:
+    - lifecycle: install
+  roles:
+    - universalforwarder
